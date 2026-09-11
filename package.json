@@ -1,0 +1,60 @@
+{
+  "name": "@thatswiftguy/type",
+  "version": "0.1.0",
+  "description": "A typing drill for React: loose words or a passage, a caret that slides, and the two numbers that matter.",
+  "keywords": [
+    "typing",
+    "typing-test",
+    "typing-practice",
+    "wpm",
+    "react",
+    "monkeytype"
+  ],
+  "license": "MIT",
+  "author": "Mohammad Yasir (https://thatswiftguy.com)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thatswiftguy/type.git"
+  },
+  "homepage": "https://github.com/thatswiftguy/type#readme",
+  "bugs": "https://github.com/thatswiftguy/type/issues",
+  "type": "module",
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/type.js"
+    },
+    "./type.css": "./dist/type.css",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build && tsc -p tsconfig.build.json && node scripts/dts-extensions.mjs",
+    "build:demo": "vite build --config vite.demo.config.ts",
+    "preview": "vite preview",
+    "typecheck": "tsc -b --noEmit",
+    "prepare": "npm run build"
+  },
+  "peerDependencies": {
+    "react": ">=18",
+    "react-dom": ">=18"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.5",
+    "@vitejs/plugin-react": "^6.1.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "typescript": "^7.0.2",
+    "vite": "^8.2.2"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

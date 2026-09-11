@@ -1,0 +1,618 @@
+/* The typing drill. Everything is namespaced `ty-`, including the knobs.
+ *
+ * Each one falls back twice: to the host page's variable if it has one under
+ * the usual name, and then to a value of our own. So the component looks
+ * finished dropped into an empty page, quietly takes on the palette of a site
+ * that already has one, and can still be told exactly what to do by setting
+ * the `--ty-*` variable directly. That last one is the supported way.
+ */
+.ty {
+  position: relative;
+
+  /* Layout. The caret and the three-line window are both measured against
+     these two, so they are variables rather than numbers in ten places. */
+  --ty-size: 1.5rem;
+  --ty-line: 2.65rem;
+
+  /* Palette. */
+  --ty-accent: var(--accent, #fb6d4c);
+  --ty-bg: var(--bg, #08090b);
+  --ty-ink: var(--ink, #f4f6f8);
+  --ty-ink-2: var(--ink-2, #a9b1bc);
+  --ty-ink-3: var(--ink-3, #7f8794);
+  --ty-ink-4: var(--ink-4, #4b525c);
+  --ty-rule: var(--line, #1b1e23);
+  --ty-rule-2: var(--line-2, #2a2e35);
+
+  /* Letters not yet typed, and letters typed wrong. */
+  --ty-idle: #444b55;
+  --ty-bad: #ff5f52;
+
+  --ty-mono: var(
+    --mono,
+    ui-monospace,
+    SFMono-Regular,
+    "SF Mono",
+    Menlo,
+    Consolas,
+    monospace
+  );
+  --ty-serif: var(--serif, ui-serif, Georgia, "Times New Roman", serif);
+}
+
+/* ── head ─────────────────────────────────────────────────────────────── */
+.ty-head {
+  animation: ty-rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.ty-title {
+  margin: 1.6rem 0 0;
+  font-size: clamp(2.4rem, 8vw, 3.1rem);
+  font-weight: 500;
+  letter-spacing: -0.045em;
+  line-height: 1;
+  background: linear-gradient(172deg, #ffffff 14%, #98a1ad 94%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.ty-sub {
+  margin: 0.85rem 0 0;
+  max-width: 30rem;
+  color: var(--ty-ink-3);
+  text-wrap: pretty;
+}
+
+/* ── mode bar ─────────────────────────────────────────────────────────── */
+
+/* Gets out of the way once the clock is running: nothing on the page should
+   compete with the word being typed. It keeps its space so the text below
+   does not jump when it goes. */
+.ty-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 2.2rem;
+  animation: ty-rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: 0.08s;
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.ty-bar--away {
+  opacity: 0;
+  transform: translateY(-4px);
+  pointer-events: none;
+}
+
+.ty-seg {
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--ty-rule);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.022);
+}
+
+.ty-opt {
+  appearance: none;
+  height: 30px;
+  padding: 0 0.8rem;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  font-family: var(--ty-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
+  color: var(--ty-ink-4);
+  cursor: pointer;
+  transition: color 0.18s ease, background 0.18s ease;
+}
+
+.ty-opt:hover {
+  color: var(--ty-ink-2);
+}
+
+.ty-opt--on {
+  background: color-mix(in srgb, var(--ty-accent) 14%, transparent);
+  color: var(--ty-accent);
+}
+
+/* ── stage ────────────────────────────────────────────────────────────── */
+.ty-stage {
+  position: relative;
+  z-index: 0;
+  margin-top: 1.4rem;
+  padding: 1.9rem 1.9rem 1.5rem;
+  border: 1px solid var(--ty-rule);
+  border-radius: 22px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.038),
+    rgba(255, 255, 255, 0.012)
+  );
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.055),
+    0 40px 90px -60px #000;
+  -webkit-backdrop-filter: blur(22px);
+  backdrop-filter: blur(22px);
+  animation: ty-rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: 0.16s;
+}
+
+/* A warm field under the words that comes up while you are typing. It is the
+   only thing on the page that reacts to the test being alive. */
+.ty-stage::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: inherit;
+  opacity: 0.35;
+  background: radial-gradient(
+    62% 70% at 50% 46%,
+    color-mix(in srgb, var(--ty-accent) 14%, transparent),
+    transparent 72%
+  );
+  transition: opacity 0.7s ease;
+}
+
+.ty-stage--live::before {
+  opacity: 1;
+}
+
+/* ── live readout ─────────────────────────────────────────────────────── */
+.ty-read {
+  display: flex;
+  align-items: baseline;
+  gap: 1.2rem;
+  margin-bottom: 1.35rem;
+  font-family: var(--ty-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  color: var(--ty-ink-4);
+  font-variant-numeric: tabular-nums;
+}
+
+.ty-read__clock {
+  margin-right: auto;
+  font-size: 1.5rem;
+  letter-spacing: -0.02em;
+  color: var(--ty-accent);
+}
+
+.ty-read__stat b {
+  font-weight: 500;
+  color: var(--ty-ink-2);
+}
+
+/* ── the text ─────────────────────────────────────────────────────────── */
+.ty-field {
+  position: relative;
+  cursor: text;
+}
+
+/* Three lines on show. Only the last one fades, and deliberately: the line
+   being typed sits at the top until there is a line above it to scroll under,
+   so a symmetrical mask would dim the one line that must stay sharp. */
+.ty-view {
+  height: calc(var(--ty-line) * 3);
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(180deg, #000 58%, rgba(0, 0, 0, 0.22));
+  mask-image: linear-gradient(180deg, #000 58%, rgba(0, 0, 0, 0.22));
+  transition: filter 0.4s ease, opacity 0.4s ease;
+}
+
+.ty-field--blur .ty-view {
+  filter: blur(4.5px);
+  opacity: 0.45;
+}
+
+.ty-track {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  column-gap: 1ch;
+  font-family: var(--ty-mono);
+  font-size: var(--ty-size);
+  line-height: var(--ty-line);
+  letter-spacing: -0.005em;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+
+/* A flex item, so its box is exactly one line tall — which is what the caret
+   and the line scroll are both measured against. */
+.ty-word {
+  white-space: nowrap;
+}
+
+/* Every letter is a box of the full line height, aligned to the top of it.
+   That makes offsetTop identical for all of them, so the caret never has to
+   guess where the line begins. */
+.ty-c {
+  display: inline-block;
+  height: var(--ty-line);
+  vertical-align: top;
+  color: var(--ty-idle);
+  transition: color 0.14s ease;
+}
+
+.ty-c--ok {
+  color: var(--ty-ink);
+}
+
+.ty-c--bad,
+.ty-c--over,
+.ty-c--skip {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.22em;
+}
+
+.ty-c--bad {
+  color: var(--ty-bad);
+}
+
+/* Typed past the end of the word: wrong, but not a letter you were asked for,
+   so it is dimmer than a plain mistake. */
+.ty-c--over {
+  color: color-mix(in srgb, var(--ty-bad) 62%, #0b0d10);
+}
+
+/* Left behind when the word was abandoned early. */
+.ty-c--skip {
+  color: color-mix(in srgb, var(--ty-bad) 34%, transparent);
+}
+
+.ty-c--tail {
+  width: 0;
+}
+
+/* ── caret ────────────────────────────────────────────────────────────── */
+
+/* The whole point of the page. It is one element that slides to the letter
+   the cursor is on, which is why every letter had to be measurable. */
+.ty-caret {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  width: 0;
+  pointer-events: none;
+  transition: transform 0.1s cubic-bezier(0.3, 0.9, 0.4, 1), height 0.1s ease;
+}
+
+.ty-caret::before {
+  content: "";
+  /* Never shrink: the caret's own box is zero-wide so it can sit exactly on
+     the edge of a letter, and a flex item in a zero-wide box is squeezed to
+     nothing unless it is told not to be. */
+  flex: none;
+  width: 2px;
+  height: 1.3em;
+  border-radius: 2px;
+  background: var(--ty-accent);
+  box-shadow: 0 0 14px color-mix(in srgb, var(--ty-accent) 85%, transparent),
+    0 0 34px color-mix(in srgb, var(--ty-accent) 35%, transparent);
+  animation: ty-blink 1.05s steps(1, end) infinite;
+}
+
+/* Solid while the hands are moving; a blinking caret under a moving caret is
+   a flicker, not a signal. */
+.ty-caret--live::before {
+  animation: none;
+}
+
+/* Everything that enters does it this way. Named for the package: a bare
+   `rise` would collide with the host's on a site that has one. */
+@keyframes ty-rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+
+@keyframes ty-blink {
+  50% {
+    opacity: 0.15;
+  }
+}
+
+/* ── focus prompt ─────────────────────────────────────────────────────── */
+
+/* Laid over the words rather than under them: it appears exactly when they go
+   soft, and it costs the stage no height while it is invisible. */
+.ty-wake {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  font-family: var(--ty-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  color: var(--ty-ink-3);
+  /* A scrim, so the prompt is legible over whatever it happens to cover. */
+  background: radial-gradient(
+    46% 58% at 50% 50%,
+    color-mix(in srgb, var(--ty-bg) 82%, transparent),
+    transparent 72%
+  );
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.ty-field--blur .ty-wake {
+  opacity: 1;
+}
+
+/* ── progress ─────────────────────────────────────────────────────────── */
+.ty-progress {
+  position: relative;
+  height: 2px;
+  margin-top: 1.35rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  overflow: hidden;
+}
+
+.ty-progress span {
+  display: block;
+  height: 100%;
+  transform-origin: left;
+  border-radius: inherit;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--ty-accent) 45%, transparent),
+    var(--ty-accent)
+  );
+  box-shadow: 0 0 12px color-mix(in srgb, var(--ty-accent) 50%, transparent);
+  transition: transform 0.2s linear;
+}
+
+/* ── result ───────────────────────────────────────────────────────────── */
+.ty-result {
+  animation: ty-rise 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.ty-score {
+  text-align: center;
+}
+
+.ty-score__label {
+  margin: 0;
+  font-family: var(--ty-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ty-ink-4);
+}
+
+.ty-score__value {
+  margin: 0.2rem 0 0;
+  font-family: var(--ty-mono);
+  font-size: clamp(4rem, 16vw, 6rem);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.05em;
+  /* White at the top of the digits, Swift orange at the foot of them. The
+     stops are inside the box on purpose: run the accent off the end and the
+     number reads grey, which is the one thing this number must not be. */
+  background: linear-gradient(176deg, #ffffff 4%, #ffcab8 48%, var(--ty-accent) 96%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(
+    0 14px 44px color-mix(in srgb, var(--ty-accent) 30%, transparent)
+  );
+}
+
+.ty-curve {
+  display: block;
+  width: 100%;
+  height: 132px;
+  margin-top: 1.2rem;
+}
+
+.ty-curve__net {
+  stroke: var(--ty-accent);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(
+    0 0 8px color-mix(in srgb, var(--ty-accent) 55%, transparent)
+  );
+}
+
+.ty-curve__raw {
+  stroke: rgba(169, 177, 188, 0.28);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 3 4;
+}
+
+.ty-facts {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  margin: 1.4rem 0 0;
+  border: 1px solid var(--ty-rule);
+  border-radius: 14px;
+  background: var(--ty-rule);
+  overflow: hidden;
+}
+
+.ty-fact {
+  padding: 0.85rem 0.9rem;
+  background: var(--ty-bg);
+}
+
+.ty-fact dt {
+  font-family: var(--ty-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ty-ink-4);
+}
+
+.ty-fact dd {
+  margin: 0.3rem 0 0;
+  font-family: var(--ty-mono);
+  font-size: 1.15rem;
+  color: var(--ty-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.ty-fact__slash {
+  padding: 0 0.15rem;
+  color: var(--ty-ink-4);
+}
+
+.ty-fact__bad {
+  color: var(--ty-bad);
+}
+
+.ty-again {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+}
+
+.ty-go {
+  appearance: none;
+  height: 38px;
+  padding: 0 1.1rem;
+  border: 1px solid var(--ty-rule-2);
+  border-radius: 11px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.055),
+    rgba(255, 255, 255, 0.015)
+  );
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 2px 6px -2px rgba(0, 0, 0, 0.6);
+  font-family: var(--ty-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
+  color: var(--ty-ink-2);
+  cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease, transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.ty-go:hover {
+  color: var(--ty-ink);
+  border-color: color-mix(in srgb, var(--ty-accent) 45%, transparent);
+  transform: translateY(-2px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 12px 26px -18px color-mix(in srgb, var(--ty-accent) 80%, transparent);
+}
+
+.ty-go--lead {
+  border-color: color-mix(in srgb, var(--ty-accent) 40%, transparent);
+  color: var(--ty-accent);
+}
+
+/* ── foot ─────────────────────────────────────────────────────────────── */
+.ty-foot {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  margin-top: 1.1rem;
+}
+
+.ty-hint,
+.ty-source {
+  margin: 0;
+  font-family: var(--ty-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.03em;
+  color: var(--ty-ink-4);
+}
+
+.ty-source {
+  margin-left: auto;
+  font-family: var(--ty-serif);
+  font-size: 0.95rem;
+  font-style: italic;
+  letter-spacing: 0;
+  color: var(--ty-ink-3);
+}
+
+.ty-hint kbd {
+  padding: 0.1rem 0.35rem;
+  border: 1px solid var(--ty-rule-2);
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.03);
+  font: inherit;
+  color: var(--ty-ink-3);
+}
+
+/* Present, focusable and invisible. It sits over the page rather than off the
+   edge of it, so focusing it on a phone does not throw the scroll position. */
+.ty-input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  opacity: 0;
+  pointer-events: none;
+  font: inherit;
+  color: transparent;
+  caret-color: transparent;
+}
+
+/* Standalone there is no page-wide rule to do this for us, and the caret
+   slide is exactly the kind of movement the setting is asking about. */
+@media (prefers-reduced-motion: reduce) {
+  .ty,
+  .ty *,
+  .ty *::before,
+  .ty *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .ty-go:hover {
+    transform: none;
+  }
+}
+
+@media (max-width: 40rem) {
+  .ty {
+    --ty-size: 1.15rem;
+    --ty-line: 2.1rem;
+  }
+
+  .ty-stage {
+    padding: 1.35rem 1.15rem 1.15rem;
+    border-radius: 18px;
+  }
+
+  .ty-facts {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .ty-read__clock {
+    font-size: 1.25rem;
+  }
+
+  .ty-foot {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .ty-source {
+    margin-left: 0;
+  }
+}

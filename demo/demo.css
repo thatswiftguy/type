@@ -1,0 +1,77 @@
+/* The demo page only. None of this ships in the package — it is the bare
+   minimum a host has to bring: a dark ground, a column, and a typeface. */
+html {
+  background: #08090b;
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  font-family: "Geist", ui-sans-serif, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Helvetica, Arial, sans-serif;
+  font-size: 15.5px;
+  line-height: 1.65;
+  color: #a9b1bc;
+  -webkit-font-smoothing: antialiased;
+}
+
+.demo {
+  max-width: 56rem;
+  margin: 0 auto;
+  padding: 3.5rem 1.5rem 4rem;
+}
+
+.demo__back {
+  font-family: "Geist Mono", ui-monospace, monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
+  color: #7f8794;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.demo__back:hover {
+  color: #fb6d4c;
+}
+
+/* ── the onFinish log ─────────────────────────────────────────────────── */
+.demo__log {
+  margin-top: 2.5rem;
+}
+
+.demo__label {
+  margin: 0 0 0.6rem;
+  font-family: "Geist Mono", ui-monospace, monospace;
+  font-size: 0.6875rem;
+  font-weight: 400;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #4b525c;
+}
+
+.demo__log ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid #1b1e23;
+}
+
+.demo__log li {
+  padding: 0.55rem 0;
+  border-bottom: 1px solid #1b1e23;
+  font-family: "Geist Mono", ui-monospace, monospace;
+  font-size: 0.75rem;
+  color: #7f8794;
+  font-variant-numeric: tabular-nums;
+}
+
+.demo__log b {
+  font-weight: 500;
+  color: #f4f6f8;
+}
+
+@media (max-width: 34rem) {
+  .demo {
+    padding: 2.25rem 1.15rem 3rem;
+  }
+}
