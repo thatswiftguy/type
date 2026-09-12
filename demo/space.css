@@ -1,0 +1,124 @@
+/* The background. Demo page only — the package still ships as a drill on a
+   transparent ground, and none of this goes with it. */
+
+/* ── the sky ──────────────────────────────────────────────────────────── */
+.sky {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  /* Its own layer. The clouds move every frame and the stars repaint every
+     frame, and neither should be asking the page above to come with them.
+     Layout and paint only: size containment would be asking to be measured
+     as though it were empty, and this one is measured by `inset` anyway. */
+  contain: layout paint;
+}
+
+.sky__stars {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Gas. Three of them, oversized so the drift never walks an edge into view,
+   and soft enough that the only thing you could point at is a change of
+   colour. Painting these in the canvas would mean three screen-sized
+   gradients a frame; as elements the compositor moves them for nothing. */
+.sky__cloud {
+  position: absolute;
+  inset: -35%;
+  will-change: transform;
+}
+
+.sky__cloud--far {
+  background:
+    radial-gradient(
+      46% 40% at 18% 24%,
+      rgba(58, 96, 200, 0.5),
+      transparent 68%
+    ),
+    radial-gradient(
+      40% 46% at 82% 70%,
+      rgba(26, 72, 156, 0.42),
+      transparent 70%
+    );
+  animation: sky-far 96s ease-in-out infinite alternate;
+}
+
+.sky__cloud--mid {
+  background:
+    radial-gradient(
+      36% 32% at 74% 16%,
+      rgba(132, 76, 214, 0.34),
+      transparent 66%
+    ),
+    radial-gradient(
+      32% 38% at 24% 82%,
+      rgba(72, 40, 168, 0.3),
+      transparent 68%
+    ),
+    radial-gradient(
+      26% 22% at 58% 92%,
+      rgba(32, 130, 148, 0.2),
+      transparent 70%
+    );
+  animation: sky-mid 71s ease-in-out infinite alternate;
+}
+
+/* The one that carries the accent. Faint, and kept off the middle: the drill
+   lays its own warm field under the words, and a second one behind the card
+   turns the whole centre of the page to mud. */
+.sky__cloud--near {
+  background: radial-gradient(
+    26% 24% at 88% 34%,
+    rgba(251, 109, 76, 0.17),
+    transparent 66%
+  );
+  animation: sky-near 58s ease-in-out infinite alternate;
+}
+
+/* Over everything: black in the corners, black along the top, so the heading
+   sits on ground rather than on scenery. */
+.sky__veil {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      118% 88% at 50% 42%,
+      transparent 46%,
+      rgba(6, 7, 10, 0.46) 84%,
+      rgba(6, 7, 10, 0.76) 100%
+    ),
+    linear-gradient(180deg, rgba(7, 8, 11, 0.66), transparent 24%);
+}
+
+@keyframes sky-far {
+  to {
+    transform: translate3d(4%, -3%, 0) scale(1.12);
+  }
+}
+
+@keyframes sky-mid {
+  to {
+    transform: translate3d(-5%, 4%, 0) scale(1.16);
+  }
+}
+
+@keyframes sky-near {
+  to {
+    transform: translate3d(3%, 5%, 0) scale(1.24);
+  }
+}
+
+/* ── quieter ──────────────────────────────────────────────────────────── */
+
+/* The clouds stop, and the stars are drawn once and left where they are
+   (`sky.ts` handles that half). What remains is a still photograph of the
+   same sky, which is what the setting is asking for — not a blank page. */
+@media (prefers-reduced-motion: reduce) {
+  .sky__cloud {
+    animation: none;
+  }
+}

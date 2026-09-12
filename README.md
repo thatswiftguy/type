@@ -15,8 +15,9 @@ npm run dev
 ```
 
 A working typing test at <http://localhost:5173> (Vite picks the next free
-port if that one is taken). The demo in `demo/` is the whole integration —
-one short file, worth reading before wiring this into anything.
+port if that one is taken). `demo/main.tsx` is the whole integration — one
+short file, worth reading before wiring this into anything. The starfield
+behind it belongs to [the demo page](#the-demo-page), not to the package.
 
 ## Install
 
@@ -94,6 +95,28 @@ Also `--ty-bg`, `--ty-ink`, `--ty-ink-2`, `--ty-ink-3`, `--ty-ink-4`,
 
 The scoring has no React in it and is exported on its own: `buildTest`,
 `reduce`, `start`, `tally`, `wpm`.
+
+## The demo page
+
+Nothing below ships. It lives in `demo/` and exists to show what the drill
+looks like once a host page has actually dressed it — the component itself
+still renders on whatever ground it is given.
+
+| File | What it is |
+|---|---|
+| `sky.ts` | The starfield. A box of stars, projected. No React. |
+| `Starfield.tsx` | Mounts it and feeds it keystrokes. |
+| `space.css` | The nebula and the vignette over it. |
+
+**The field flies when you type.** There is no prop for that and no callback
+on `<Typing>`: the drill already reads keys off the window, so the background
+reads the same ones and the two never have to be introduced. Each keystroke
+buys a little speed, which then bleeds away — so resting is a still field of
+points and a fast run is a warp. The whole coupling is nine lines of
+`Starfield.tsx`.
+
+It stops for `prefers-reduced-motion`: the sky is drawn once as a still
+photograph and left there, and nothing on the page animates.
 
 ## Licence
 
