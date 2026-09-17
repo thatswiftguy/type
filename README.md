@@ -25,8 +25,14 @@ short file, worth reading before wiring this into anything — including
 npm i git+https://github.com/thatswiftguy/type.git
 ```
 
-Installing from the repository builds the package on the way in, so there is
-nothing to fetch from a registry. Append `#v0.2.0` to pin a tag.
+There is nothing to fetch from a registry: `dist/` is committed, so a clone
+already carries what the package ships. The `prepare` script rebuilds it on
+the way in where install scripts are allowed to run, and where they are not —
+some CI hosts now gate them — the committed build is what gets installed.
+Append `#v0.2.0` to pin a tag.
+
+That is the one rule for working here: **run `npm run build` before committing
+a change under `src/`**, or consumers get the previous build.
 
 ## Use
 

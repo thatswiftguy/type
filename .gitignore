@@ -1,5 +1,12 @@
 node_modules
-dist
+
+# `dist/` is committed on purpose, unlike every other build output here. The
+# package is installed straight from this repository, and the `prepare` script
+# that would build it on the way in does not always get to run — npm now gates
+# install scripts, and a host that blocks them installs a package with nothing
+# in it. Committed, the clone already carries what it ships.
+#
+# So: `npm run build` before committing a change under `src/`.
 demo-dist
 *.tsbuildinfo
 .DS_Store
