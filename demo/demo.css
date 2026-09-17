@@ -1,6 +1,6 @@
 /* The demo page only. None of this ships in the package — it is the bare
    minimum a host has to bring: a dark ground, a column, and a typeface. The
-   sky is next door in `space.css`. */
+   sky is `<Starfield />`, which does ship, and brings its own stylesheet. */
 html {
   background: #08090b;
   color-scheme: dark;
@@ -25,14 +25,6 @@ body {
   max-width: 56rem;
   margin: 0 auto;
   padding: 3.5rem 1.5rem 4rem;
-}
-
-/* The drill sits on stars now rather than on a solid page, so the panels it
-   fills with `--ty-bg` are handed a colour that lets a little of the sky
-   through. Everything else the component does with the variable — the scrim
-   behind the focus prompt, mostly — takes the change quietly. */
-.demo .ty {
-  --ty-bg: rgba(14, 16, 21, 0.72);
 }
 
 .demo__back {

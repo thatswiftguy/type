@@ -1,10 +1,9 @@
 import { StrictMode, useState } from "react";
 import { createRoot, type Root } from "react-dom/client";
-import { Typing, type Outcome } from "../src/index.ts";
-import { Starfield } from "./Starfield.tsx";
+import { Starfield, Typing, type Outcome } from "../src/index.ts";
 import "../src/typing.css";
+import "../src/sky.css";
 import "./demo.css";
-import "./space.css";
 
 /**
  * The demo. Still thin where it counts — a heading, the component, and a log

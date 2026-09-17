@@ -16,8 +16,8 @@ npm run dev
 
 A working typing test at <http://localhost:5173> (Vite picks the next free
 port if that one is taken). `demo/main.tsx` is the whole integration — one
-short file, worth reading before wiring this into anything. The starfield
-behind it belongs to [the demo page](#the-demo-page), not to the package.
+short file, worth reading before wiring this into anything — including
+[the starfield](#the-starfield) behind it, which ships too.
 
 ## Install
 
@@ -26,7 +26,7 @@ npm i git+https://github.com/thatswiftguy/type.git
 ```
 
 Installing from the repository builds the package on the way in, so there is
-nothing to fetch from a registry. Append `#v0.1.0` to pin a tag.
+nothing to fetch from a registry. Append `#v0.2.0` to pin a tag.
 
 ## Use
 
@@ -91,25 +91,40 @@ Also `--ty-bg`, `--ty-ink`, `--ty-ink-2`, `--ty-ink-3`, `--ty-ink-4`,
 `--ty-rule`, `--ty-rule-2`, `--ty-mono`, `--ty-serif`, `--ty-idle`,
 `--ty-bad`. No webfont required — the mono stack ends at the system monospace.
 
-## Headless
+## The starfield
 
-The scoring has no React in it and is exported on its own: `buildTest`,
-`reduce`, `start`, `tally`, `wpm`.
+An optional background to stand the drill on: a box of stars projected onto
+the page, three clouds of gas drifting behind them, and a vignette over the
+top. Import it or leave it — `<Typing>` renders on whatever ground it is
+given, and on none at all.
 
-## The demo page
+```tsx
+import { Starfield, Typing } from "@thatswiftguy/type";
+import "@thatswiftguy/type/type.css";
 
-Nothing below ships. It lives in `demo/` and exists to show what the drill
-looks like once a host page has actually dressed it — the component itself
-still renders on whatever ground it is given.
+export function Page() {
+  return (
+    <>
+      <Starfield />
+      <main>
+        <Typing title="Type" />
+      </main>
+    </>
+  );
+}
+```
 
-| File | What it is |
-|---|---|
-| `sky.ts` | The starfield. A box of stars, projected. No React. |
-| `Starfield.tsx` | Mounts it and feeds it keystrokes. |
-| `space.css` | The nebula and the vignette over it. |
+It is a sibling rather than a prop, and that is the point: the drill stays a
+transparent box you put on a page you already have. Render it before the
+content — it is `position: fixed` at `z-index: 0`, so whatever follows needs
+to be positioned to sit above it (`position: relative` is enough).
 
-**The field flies when you type.** There is no prop for that and no callback
-on `<Typing>`: the drill already reads keys off the window, so the background
+The styles ride in `type.css` with everything else. While the sky is on the
+page the drill's panels are handed a translucent `--ty-bg` so a little of it
+shows through; set `--ty-bg` yourself to override that.
+
+**The field flies when you type.** There is no prop for it and no callback on
+`<Typing>`: the drill already reads keys off the window, so the background
 reads the same ones and the two never have to be introduced. Each keystroke
 buys a little speed, which then bleeds away — so resting is a still field of
 points and a fast run is a warp. The whole coupling is nine lines of
@@ -117,6 +132,18 @@ points and a fast run is a warp. The whole coupling is nine lines of
 
 It stops for `prefers-reduced-motion`: the sky is drawn once as a still
 photograph and left there, and nothing on the page animates.
+
+## Headless
+
+The scoring has no React in it and is exported on its own: `buildTest`,
+`reduce`, `start`, `tally`, `wpm`.
+
+## The demo page
+
+Nothing in `demo/` ships. It is two files — `main.tsx` and `demo.css` — and
+it exists to show what the drill and the sky look like once a host page has
+put them together: a dark ground, a column, a typeface, and the log of what
+`onFinish` hands back. Everything else on that page comes from the package.
 
 ## Licence
 

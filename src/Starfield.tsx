@@ -1,9 +1,21 @@
 import { useEffect, useRef } from "react";
 import { sky } from "./sky.ts";
+import "./sky.css";
 
 /**
- * The background: three drifting clouds of gas in CSS, a canvas of stars over
- * them, and a vignette on top to keep the corners out of the way of the text.
+ * A background for the page the drill sits on: three drifting clouds of gas in
+ * CSS, a canvas of stars over them, and a vignette on top to keep the corners
+ * out of the way of the text.
+ *
+ * Optional, and deliberately a component of its own rather than a prop on
+ * `<Typing>`. The drill stays the transparent box it has always been — you
+ * put it on a page you already have — and this is one ground you can put it
+ * on if you have not got one. Render it as a sibling, before the content:
+ *
+ *     <Starfield />
+ *     <main>
+ *       <Typing />
+ *     </main>
  *
  * The clouds are CSS rather than canvas because they never change shape —
  * only position — and a transform the compositor can take is free where

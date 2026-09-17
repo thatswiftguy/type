@@ -1,5 +1,5 @@
 /**
- * The starfield behind the demo. No React in here, for the same reason
+ * The starfield `Starfield.tsx` drives. No React in here, for the same reason
  * `engine.ts` has none: it is a loop that mutates an array sixty times a
  * second, which is the one thing React is the wrong tool for.
  *

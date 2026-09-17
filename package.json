@@ -1,6 +1,6 @@
 {
   "name": "@thatswiftguy/type",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A typing drill for React: loose words or a passage, a caret that slides, and the two numbers that matter.",
   "keywords": [
     "typing",
